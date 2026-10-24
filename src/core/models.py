@@ -1,29 +1,20 @@
-"""Domain models for patients, memories, and scheduled tasks."""
+# src/core/models.py
+from dataclasses import dataclass
+from typing import List
 
-from dataclasses import dataclass, field
-from datetime import datetime
-from uuid import uuid4
-
+@dataclass
+class Event:
+    """Model representing scheduled tasks or events"""
+    time: str             # Example: "14:00" or "08:30"
+    event_type: str       # Event type: "food", "medicine", "date"
+    description: str      # Details: "Taking blood pressure medication", "Doctor's appointment"
 
 @dataclass
 class Patient:
+    """Model representing patient data (personal context)"""
     name: str
-    patient_id: str = field(default_factory=lambda: str(uuid4()))
-
-
-@dataclass
-class Memory:
-    patient_id: str
-    content: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    memory_id: str = field(default_factory=lambda: str(uuid4()))
-
-
-@dataclass
-class Task:
-    patient_id: str
-    title: str
-    due_at: datetime
-    completed: bool = False
-    task_id: str = field(default_factory=lambda: str(uuid4()))
-
+    age: int
+    situation: str        # Marital/social status (Example: married to Khadija)
+    profession: str       # Previous profession (Example: retired math teacher)
+    family: List[str]     # Closest 5 people (Example: ["Ahmed (son)", "Sarah (daughter)"])
+    hobby: str            # Hobby for building rapport (Example: gardening, listening to Andalusi music)
