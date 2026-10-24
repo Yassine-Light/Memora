@@ -1,28 +1,39 @@
-"""Gemma client boundary.
+import importlib
+import time
 
-The provider SDK is intentionally imported only when a request is made so the
-application can start in local/offline mode.
-"""
-
-from dataclasses import dataclass
+from src.config import resolve_model_name, settings
 
 
-@dataclass
-class GemmaClient:
-    api_key: str
-    model: str = "gemma-3-27b-it"
+def generate_empathetic_message(prompt: str) -> str:
+    if not settings.gemini_api_key:
+        raise RuntimeError("GEMINI_API_KEY is required to generate a message.")
 
-    def generate(self, prompt: str) -> str:
-        if not self.api_key:
-            raise ValueError("GEMINI_API_KEY is required to use the Gemma client.")
-
-        try:
-            import google.generativeai as genai
-        except ImportError as exc:
-            raise RuntimeError(
-                "Install requirements.txt to enable the Gemma integration."
-            ) from exc
-
-        genai.configure(api_key=self.api_key)
-        return genai.GenerativeModel(self.model).generate_content(prompt).text
-
+    try:
+        genai = importlib.import_module("google.genai")
+        client = genai.Client(api_key=settings.gemini_api_key)
+        last_error: Exception | None = None
+        for attempt in range(3):
+            try:
+                response = client.models.generate_content(
+                    model=resolve_model_name(settings.gemini_model),
+                    contents=prompt,
+                )
+                text = response.text or ""
+                if not text.strip():
+                    raise RuntimeError("Gemma returned an empty response.")
+                return text.strip()
+            except Exception as exc:
+                last_error = exc
+                if not any(
+                    code in str(exc) for code in ("500", "503", "UNAVAILABLE")
+                ):
+                    raise
+                if attempt < 2:
+                    time.sleep(2**attempt)
+        raise RuntimeError("Gemma request failed after retries.") from last_error
+    except ImportError as exc:
+        raise RuntimeError(
+            "Install the Gemini SDK with: python -m pip install -r requirements.txt"
+        ) from exc
+    except Exception as exc:
+        raise RuntimeError("Gemma API request failed.") from exc

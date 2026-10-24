@@ -1,6 +1,31 @@
 {
-  "patients": [],
-  "memories": [],
-  "tasks": []
+  "patient": {
+    "name": "yassine",
+    "age": 75,
+    "situation": "Widower; his late wife’s name was Fatima",
+    "profession": "Retired engineer",
+    "family": [
+      "Ahmed (eldest son)",
+      "Sarah (daughter)",
+      "Yassin (grandson)"
+    ],
+    "hobby": "Tending to garden plants and drinking mint tea"
+  },
+  "events": [
+    {
+      "time": "08:30",
+      "event_type": "medicine",
+      "description": "Took diabetes medication with breakfast"
+    },
+    {
+      "time": "13:30",
+      "event_type": "food",
+      "description": "Had lunch"
+    },
+    {
+      "time": "17:00",
+      "event_type": "outing",
+      "description": "Went out for a short walk in the garden"
+    }
+  ]
 }
-
